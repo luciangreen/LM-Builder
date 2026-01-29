@@ -61,7 +61,9 @@ cd LM-Builder
 
 3. Start the server:
 ```bash
-swipl server.pl
+swipl
+['server.pl'].
+start_server(8080).
 ```
 
 The server will start on port 8080 by default.
