@@ -1,0 +1,5 @@
+/* Additional Issue Files Example */
+
+This file demonstrates that issues can have multiple files beyond the main Markdown file.
+
+Additional documentation, attachments, or related information can be stored here.

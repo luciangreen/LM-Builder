@@ -1,0 +1,20 @@
+# Ignore backup files
+backups/*.tar.gz
+
+# Ignore temporary files
+*.swp
+*~
+.DS_Store
+
+# Ignore Prolog compiled files
+*.qlf
+
+# Ignore log files
+*.log
+
+# Ignore node_modules if any JS tooling is added
+node_modules/
+
+# Ignore system files
+.directory
+Thumbs.db
