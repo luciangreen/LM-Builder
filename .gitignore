@@ -5,6 +5,7 @@ backups/*.tar.gz
 *.swp
 *~
 .DS_Store
+cookies.txt
 
 # Ignore Prolog compiled files
 *.qlf

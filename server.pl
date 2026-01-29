@@ -58,23 +58,31 @@ ensure_database(Path, Type) :-
      format(Stream, '%% ~w database~n', [Type]),
      close(Stream)).
 
+% Custom page renderer with CSS
+render_page(Title, Body) :-
+    reply_html_page(
+        [title(Title),
+         link([rel=stylesheet, href='/static/style.css', type='text/css'])],
+        Body
+    ).
+
 % Home Page
 home_page(_Request) :-
-    reply_html_page(
-        title('Issue Examination CRM'),
+    render_page('Issue Examination CRM',
         [h1('Issue Examination CRM'),
          p('Welcome to the Issue Examination CRM system.'),
          h2('Navigation'),
-         ul([
-             li(a(href='/issues', 'View Issues')),
-             li(a(href='/chat', 'Chat Interface')),
-             li(a(href='/articles', 'Articles')),
-             li(a(href='/advocates', 'Advocates')),
-             li(a(href='/actions', 'Actions')),
-             li(a(href='/profile', 'Profiles')),
-             li(a(href='/edit_file', 'Edit Files')),
-             li(a(href='/login', 'Login (Admin)'))
-         ])
+         div(class='nav-links',
+             ul([
+                 li(a(href='/issues', 'View Issues')),
+                 li(a(href='/chat', 'Chat Interface')),
+                 li(a(href='/articles', 'Articles')),
+                 li(a(href='/advocates', 'Advocates')),
+                 li(a(href='/actions', 'Actions')),
+                 li(a(href='/profile', 'Profiles')),
+                 li(a(href='/edit_file', 'Edit Files')),
+                 li(a(href='/login', 'Login (Admin)'))
+             ]))
         ]).
 
 % Login Page
