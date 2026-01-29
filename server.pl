@@ -137,18 +137,20 @@ issues_page(_Request) :-
         ]).
 
 issues_list(Issues) -->
-    html(ul(\maplist(issue_item, Issues))).
+    {maplist(issue_to_html, Issues, HTMLItems)},
+    html(ul(HTMLItems)).
 
-issue_item(Issue) -->
-    html(li(a(href='/issue?name='+Issue, Issue))).
+issue_to_html(Issue, li(a(href=URL, Issue))) :-
+    format(atom(URL), '/issue?name=~w', [Issue]).
 
 find_all_issues(Issues) :-
     exists_directory('issues'),
     directory_files('issues', Files),
-    findall(Issue, 
+    findall(Dir, 
             (member(Dir, Files), 
              \+ member(Dir, ['.', '..']),
-             exists_directory('issues'/Dir)),
+             atom_concat('issues/', Dir, FullPath),
+             exists_directory(FullPath)),
             Issues).
 
 % View Issue
@@ -156,7 +158,7 @@ view_issue(Request) :-
     http_parameters(Request, [name(IssueName, [])]),
     atom_concat('issues/', IssueName, IssueDir),
     atom_concat(IssueName, '_main.md', MainFile),
-    atom_concat(IssueDir, '/', MainFile, MainPath),
+    atomic_list_concat([IssueDir, '/', MainFile], MainPath),
     (exists_file(MainPath) ->
         read_file_to_string(MainPath, Content, []),
         markdown_to_html(Content, HTML),
@@ -250,7 +252,7 @@ extract_issue_name(Query, IssueName) :-
 get_issue_summary(IssueName, Summary) :-
     atom_concat('issues/', IssueName, IssueDir),
     atom_concat(IssueName, '_main.md', MainFile),
-    atom_concat(IssueDir, '/', MainFile, MainPath),
+    atomic_list_concat([IssueDir, '/', MainFile], MainPath),
     (exists_file(MainPath) ->
         read_file_to_string(MainPath, Content, []),
         string_length(Content, Len),
@@ -295,10 +297,10 @@ actions_page(_Request) :-
         ]).
 
 file_list(Files, _Dir) -->
-    html(ul(\maplist(file_item, Files))).
+    {maplist(file_to_html, Files, HTMLItems)},
+    html(ul(HTMLItems)).
 
-file_item(File) -->
-    html(li(File)).
+file_to_html(File, li(File)).
 
 find_markdown_files(Dir, Files) :-
     (exists_directory(Dir) ->
@@ -311,7 +313,7 @@ find_markdown_files(Dir, Files) :-
 % Profile Page
 profile_page(_Request) :-
     find_profiles(Profiles),
-    is_admin -> AdminView = yes ; AdminView = no,
+    (is_admin -> AdminView = yes ; AdminView = no),
     reply_html_page(
         title('Profiles'),
         [h1('Profiles'),
@@ -320,11 +322,11 @@ profile_page(_Request) :-
         ]).
 
 profiles_list(Profiles, AdminView) -->
-    html(ul(\maplist(profile_item(AdminView), Profiles))).
+    {maplist(profile_to_html(AdminView), Profiles, HTMLItems)},
+    html(ul(HTMLItems)).
 
-profile_item(AdminView, Profile) -->
-    {format(atom(Desc), '~w (Contact visible to: ~w)', [Profile, AdminView])},
-    html(li(Desc)).
+profile_to_html(AdminView, Profile, li(Desc)) :-
+    format(atom(Desc), '~w (Contact visible to: ~w)', [Profile, AdminView]).
 
 find_profiles(Profiles) :-
     (exists_directory('profiles') ->
@@ -463,5 +465,6 @@ run_backup(Result) :-
     shell(Command),
     format(atom(Result), 'Backup created: ~w', [BackupFile]).
 
-% Main entry point
-:- initialization(start_server(8080), main).
+% Main entry point - To start the server, use:
+% swipl -g "consult('server.pl'), start_server(8080)" -t 'halt'
+% or run ./start_server.sh
